@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EFF AR DASHBOARD</title>
+
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/css/bootstrap-icons.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/button.css">
+<script src="assets/js/aframe.min.js"></script>
+<script src="assets/js/mindar-image-aframe.prod.js"></script>
+<script defer src="assets/js/button.js"></script>
+
+</head>
+<body>
+
+<div id="example-scanning-overlay" class="hidden">
+            <div class="inner">
+                <img src="assets/images/eff.png" />
+                <div class="scanline"></div>
+            </div>
+        </div>
+
+<div id="custom-loading">
+    <img class="loading-photo" src="assets/images/eff.png" alt="Loading Profile">
+    <div class="loading-text">Loading Experience...</div>
+</div>
+
+<div id="counter">
+Waiting for marker...
+</div>
+
+
+<div class="controls">
+    <button id="prev">⏮</button>
+    <button id="play">▶</button>
+    <button id="pause">⏸</button>
+    <button id="next">⏭</button>
+</div>
+
+<a-scene mindar-image="imageTargetSrc: parties.mind; uiLoading: #custom-loading; uiScanning: #example-scanning-overlay;" embedded vr-mode-ui="enabled:false" device-orientation-permission-ui="enabled:false" color-space="sRGB" renderer="colorManagement:true">
+<a-assets>
+
+<img id="thumbnail" src="assets/images/malema.jpg" crossorigin="anonymous">
+
+</a-assets>
+
+<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
+
+<a-entity id="target" mindar-image-target="targetIndex:0">
+
+<a-image id="imagePlane" src="#thumbnail" width="1" height="0.75" position="0 0 0"></a-image>
+</a-entity>
+</a-scene>
+
+<script>
+
+const songs = [
+    "assets/music/effs.mp3",
+    "assets/music/effs2.mp3",
+    "assets/music/effs1.mp3"
+];
+
+let current = 0;
+const counter = document.getElementById("counter");
+const player = new Audio();
+player.loop = true;
+
+function loadSong(index){
+    player.pause();
+    player.src = songs[index];
+    player.load();
+    player.play();
+    counter.textContent = `Song ${index + 1} of ${songs.length}`;
+}
+
+// Listen for MindAR to find the target marker
+const targetEntity = document.getElementById("target");
+targetEntity.addEventListener("targetFound", () => {
+    // Show the first image details once the marker is scanned
+    loadSong(current);
+  
+});
+
+targetEntity.addEventListener("targetLost", () => {
+    counter.textContent = "Waiting for marker...";
+    player.pause();
+});
+
+
+
+document.getElementById("next").onclick = () => {
+    current++;
+    if(current >= songs.length) current = 0;
+    loadSong(current);
+};
+
+document.getElementById("prev").onclick = () => {
+    current--;
+    if(current < 0) current = songs.length - 1;
+    loadSong(current);
+};
+
+document.getElementById("play").onclick = () => {
+    player.play();
+};
+
+document.getElementById("pause").onclick = () => {
+    player.pause();
+};
+
+</script>
+</body>
+</html>
